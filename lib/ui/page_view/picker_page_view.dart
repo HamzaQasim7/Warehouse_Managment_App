@@ -1,26 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:provider/provider.dart';
-import 'package:second_opinion_app/ui/home/home.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../data/sharedpref/constants/preferences.dart';
-import '../../stores/theme/theme_store.dart';
-import '../../utils/routes/routes.dart';
-import '../task/put_away_order.dart';
-import '../task/task.dart';
+import '../picker/picker_home.dart';
+import '../picker/picker_order.dart';
+import '../picker/picker_pick_order.dart';
 
-class PageViewScreen extends StatefulWidget {
-  const PageViewScreen({super.key});
+
+class PickerPageViewScreen extends StatefulWidget {
+  const PickerPageViewScreen({super.key});
 
   @override
-  State<PageViewScreen> createState() => _PageViewScreenState();
+  State<PickerPageViewScreen> createState() => _PickerPageViewScreenState();
 }
 
-class _PageViewScreenState extends State<PageViewScreen> {
+class _PickerPageViewScreenState extends State<PickerPageViewScreen> {
   int currentPageIndex = 0;
 
-  late ThemeStore _themeStore;
+  // late ThemeStore _themeStore;
 
 
   @override
@@ -28,7 +24,7 @@ class _PageViewScreenState extends State<PageViewScreen> {
     super.didChangeDependencies();
 
     // initializing stores
-    _themeStore = Provider.of<ThemeStore>(context);
+    // _themeStore = Provider.of<ThemeStore>(context);
 
 
   }
@@ -71,7 +67,7 @@ class _PageViewScreenState extends State<PageViewScreen> {
   List<Widget> _buildActions(BuildContext context) {
     return <Widget>[
       _buildThemeButton(),
-      _buildLogoutButton(),
+      // _buildLogoutButton(),
     ];
   }
 
@@ -80,36 +76,40 @@ class _PageViewScreenState extends State<PageViewScreen> {
       builder: (context) {
         return IconButton(
           onPressed: () {
-            _themeStore.changeBrightnessToDark(!_themeStore.darkMode);
+
+            // _themeStore.changeBrightnessToDark(!_themeStore.darkMode);
           },
-          icon: Icon(
-            _themeStore.darkMode ? Icons.brightness_5 : Icons.brightness_3,
+          icon: const Icon(
+            Icons.brightness_5,
+            // _themeStore.darkMode ? Icons.brightness_5 : Icons.brightness_3,
           ),
         );
       },
     );
   }
 
-  Widget _buildLogoutButton() {
-    return IconButton(
-      onPressed: () {
-        SharedPreferences.getInstance().then((preference) {
-          preference.setBool(Preferences.is_logged_in, false);
-          Navigator.of(context).pushReplacementNamed(Routes.login);
-        });
-      },
-      icon: Icon(
-        Icons.power_settings_new,
-      ),
-    );
-  }
+  // Widget _buildLogoutButton() {
+  //   return IconButton(
+  //     onPressed: () {
+  //       SharedPreferences.getInstance().then((preference) {
+  //         preference.setBool(Preferences.is_logged_in, false);
+  //         Navigator.of(context).pushReplacementNamed(Routes.login);
+  //       });
+  //     },
+  //     icon: Icon(
+  //       Icons.power_settings_new,
+  //     ),
+  //   );
+  // }
 
 
   Widget _buildCurrentIndexWidget() {
     return <Widget>[
-      HomeScreen(),
-      TaskScreen(),
-      PutAwayOrderScreen(),
+      const PickerHomeScreen(),
+      const PickerOrderScreen(),
+      const PickerPickOrderScreen()
+      // TaskScreen(),
+      // PutAwayOrderScreen(),
 
     ][currentPageIndex];
   }
@@ -117,26 +117,26 @@ class _PageViewScreenState extends State<PageViewScreen> {
   List<NavigationDestination> _buildDestinationList() {
     // This function builds the list of navigation destinations, which will be displayed in the bottom navigation bar.
     return [
-      NavigationDestination(
+      const NavigationDestination(
         icon: Icon(
           Icons.house_rounded,
           //color: currentPageIndex == 0 ? Theme.of(context).primaryColor : Colors.black38,
         ),
         label: 'Home',
       ),
-      NavigationDestination(
+      const NavigationDestination(
         icon: Icon(
           Icons.task,
           //color: currentPageIndex == 1 ? Theme.of(context).primaryColor : Colors.black38,
         ),
-        label: 'My Orders',
+        label: 'My Tasks',
       ),
-      NavigationDestination(
+      const NavigationDestination(
         icon: Icon(
           Icons.category,
           //color: currentPageIndex == 2 ? Theme.of(context).primaryColor : Colors.black38,
         ),
-        label: 'Put Away Order',
+        label: 'Tasks',
       ),
 
     ];
@@ -161,23 +161,16 @@ class _PageViewScreenState extends State<PageViewScreen> {
   }
 
   Drawer _buildDrawer() {
+
     return Drawer(
       child: ListView(
         children: [
-          UserAccountsDrawerHeader(
+          const UserAccountsDrawerHeader(
             accountName: Text('Account Name'),
             accountEmail: Text('account@gmail.com'),
             currentAccountPicture: FlutterLogo(),
           ),
-          Card(
-            elevation: 0,
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
-            child: ListTile(
-              leading: Icon(Icons.add),
-              title: Text('Pick a New Order'),
-              onTap: () {},
-            ),
-          )
+          ListTile(title: const Text('Pick a New Order'),onTap: (){},)
         ],
       ),
     );

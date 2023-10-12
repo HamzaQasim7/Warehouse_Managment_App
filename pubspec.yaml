@@ -89,6 +89,9 @@ dependencies:
   flex_color_scheme: ^7.0.5
   flutter_svg: ^2.0.5
   font_awesome_flutter: ^10.4.0
+  faker: ^2.1.0
+  qr_code_scanner: ^1.0.1
+  map_launcher: ^2.5.0+1
 
 dev_dependencies:
   flutter_test:

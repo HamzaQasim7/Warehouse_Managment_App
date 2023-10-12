@@ -31,9 +31,9 @@ class AppThemeData {
   static ThemeData lightThemeData = FlexThemeData.light(
     textTheme: _textTheme,
     scheme: FlexScheme.blueM3,
-    useMaterial3: true,
+    useMaterial3: false,
   ).copyWith(
-    appBarTheme: AppBarTheme(titleTextStyle: _textTheme.headlineMedium!.copyWith(color: Colors.black)),
+    appBarTheme: AppBarTheme(titleTextStyle: _textTheme.headlineMedium ,elevation: 0),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(
@@ -54,8 +54,8 @@ class AppThemeData {
     inputDecorationTheme: _inputDecorationTheme,
   );
 
-  static ThemeData darkThemeData = FlexThemeData.dark(textTheme: _textTheme, scheme: FlexScheme.blueM3, useMaterial3: true).copyWith(
-      appBarTheme: AppBarTheme(titleTextStyle: _textTheme.headlineMedium!.copyWith(color: Colors.white)),
+  static ThemeData darkThemeData = FlexThemeData.dark(textTheme: _textTheme, scheme: FlexScheme.blueM3, useMaterial3: false).copyWith(
+      appBarTheme: AppBarTheme(elevation: 0,titleTextStyle: _textTheme.headlineMedium!.copyWith(color: Colors.white)),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
       ),

@@ -7,12 +7,12 @@ import 'package:second_opinion_app/widgets/progress_indicator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-class HomeScreen extends StatefulWidget {
+class DriverHomeScreen extends StatefulWidget {
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _DriverHomeScreenState createState() => _DriverHomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _DriverHomeScreenState extends State<DriverHomeScreen> {
 
 
   Faker faker = Faker();
@@ -51,41 +51,53 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildListView() {
-    return   ListView.separated(
-            itemCount: 10,
-            separatorBuilder: (context, position) {
-              return Divider();
-            },
-            itemBuilder: (context, position) {
-              return _buildListItem(position);
-            },
-          )
-         ;
+    return   ListView.builder(
+      padding: EdgeInsets.all(8),
+      itemCount: 10,
+      itemBuilder: (context, position) {
+        return _buildListItem(position);
+      },
+    )
+    ;
   }
 
   Widget _buildListItem(int position) {
     String supplierName = faker.person.name();
     DateTime arrivalTime = DateTime.now().add(Duration(minutes: Random().nextInt(3600)));
-    String formattedArrivalTime = DateFormat('dd, MMM yyyy hh:mm a').format(arrivalTime);
-    return ListTile(
-      dense: true,
-      title: Text(
-        '$supplierName',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        softWrap: false,
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
-      subtitle: Text(
-        'Time of Arrival: $formattedArrivalTime',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        softWrap: false,
-      ),
-      trailing: Checkbox(
-        value: true,
-        onChanged: (bool? value) {},
-        checkColor: Colors.transparent,
+    String location = '${faker.address.streetAddress()}, ${faker.address.city()}';
+    return Card(
+      elevation: 0,
+      color: Theme.of(context).primaryColor.withOpacity(0.2),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListTile(
+          dense: true,
+          title: Text(
+            '$supplierName',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          subtitle: Row(crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.location_on,size: 18,),
+              Flexible(
+                child: Text(
+                  '$location',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                ),
+              ),
+            ],
+          ),
+          trailing: Checkbox(
+            value: true,
+            onChanged: (bool? value) {},
+            checkColor: Colors.transparent,
+          ),
+        ),
       ),
     );
   }

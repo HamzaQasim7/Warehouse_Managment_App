@@ -7,21 +7,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/sharedpref/constants/preferences.dart';
 import '../../stores/theme/theme_store.dart';
 import '../../utils/routes/routes.dart';
+import '../driver/load_delivery.dart';
+import '../driver/my_deliveries.dart';
+import '../home/driver_home.dart';
 import '../task/put_away_order.dart';
 import '../task/task.dart';
 
-class PageViewScreen extends StatefulWidget {
-  const PageViewScreen({super.key});
+class DriverPageViewScreen extends StatefulWidget {
+  const DriverPageViewScreen({super.key});
 
   @override
-  State<PageViewScreen> createState() => _PageViewScreenState();
+  State<DriverPageViewScreen> createState() => _DriverPageViewScreenState();
 }
 
-class _PageViewScreenState extends State<PageViewScreen> {
+class _DriverPageViewScreenState extends State<DriverPageViewScreen> {
   int currentPageIndex = 0;
 
   late ThemeStore _themeStore;
-
 
   @override
   void didChangeDependencies() {
@@ -29,8 +31,6 @@ class _PageViewScreenState extends State<PageViewScreen> {
 
     // initializing stores
     _themeStore = Provider.of<ThemeStore>(context);
-
-
   }
 
   @override
@@ -51,21 +51,14 @@ class _PageViewScreenState extends State<PageViewScreen> {
     );
   }
 
-  String _getTitle(){
-
-    if(currentPageIndex == 0){
+  String _getTitle() {
+    if (currentPageIndex == 0) {
       return 'Home';
-
-    } else if(currentPageIndex == 1){
-      return 'My Orders';
-
+    } else if (currentPageIndex == 1) {
+      return 'My Deliveries';
+    } else {
+      return 'Pick Order';
     }
-    else{
-
-      return 'Put Away Orders';
-    }
-
-
   }
 
   List<Widget> _buildActions(BuildContext context) {
@@ -104,13 +97,11 @@ class _PageViewScreenState extends State<PageViewScreen> {
     );
   }
 
-
   Widget _buildCurrentIndexWidget() {
     return <Widget>[
-      HomeScreen(),
-      TaskScreen(),
-      PutAwayOrderScreen(),
-
+      DriverHomeScreen(),
+      DeliveryScreen(),
+      LoadDeliveryScreen(),
     ][currentPageIndex];
   }
 
@@ -129,7 +120,7 @@ class _PageViewScreenState extends State<PageViewScreen> {
           Icons.task,
           //color: currentPageIndex == 1 ? Theme.of(context).primaryColor : Colors.black38,
         ),
-        label: 'My Orders',
+        label: 'My Deliveries',
       ),
       NavigationDestination(
         icon: Icon(
@@ -138,7 +129,6 @@ class _PageViewScreenState extends State<PageViewScreen> {
         ),
         label: 'Put Away Order',
       ),
-
     ];
   }
 

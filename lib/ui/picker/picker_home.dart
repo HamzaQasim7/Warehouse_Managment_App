@@ -1,20 +1,19 @@
 import 'dart:math';
+
 import 'package:faker/faker.dart';
-import 'package:another_flushbar/flushbar_helper.dart';
-import 'package:intl/intl.dart';
-import 'package:second_opinion_app/utils/locale/app_localization.dart';
-import 'package:second_opinion_app/widgets/progress_indicator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:intl/intl.dart';
 
-class HomeScreen extends StatefulWidget {
+class PickerHomeScreen extends StatefulWidget {
+  const PickerHomeScreen({super.key});
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  // ignore: library_private_types_in_public_api
+  _PickerHomeScreenState createState() => _PickerHomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-
-
+class _PickerHomeScreenState extends State<PickerHomeScreen> {
   Faker faker = Faker();
 
   @override
@@ -22,15 +21,12 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: _buildBody(),
     );
   }
-
 
   // body methods:--------------------------------------------------------------
   Widget _buildBody() {
@@ -45,38 +41,39 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildMainContent() {
     return Observer(
       builder: (context) {
-        return false ? CustomProgressIndicatorWidget() : Material(child: _buildListView());
+        return Material(child: _buildListView());
       },
     );
   }
 
   Widget _buildListView() {
-    return   ListView.separated(
-            itemCount: 10,
-            separatorBuilder: (context, position) {
-              return Divider();
-            },
-            itemBuilder: (context, position) {
-              return _buildListItem(position);
-            },
-          )
-         ;
+    return ListView.separated(
+      itemCount: 10,
+      separatorBuilder: (context, position) {
+        return Divider();
+      },
+      itemBuilder: (context, position) {
+        return _buildListItem(position);
+      },
+    );
   }
 
   Widget _buildListItem(int position) {
     String supplierName = faker.person.name();
-    DateTime arrivalTime = DateTime.now().add(Duration(minutes: Random().nextInt(3600)));
+    bool orderStatus = false;
+    DateTime arrivalTime =
+    DateTime.now().add(Duration(minutes: Random().nextInt(3600)));
     String formattedArrivalTime = DateFormat('dd, MMM yyyy hh:mm a').format(arrivalTime);
     return ListTile(
       dense: true,
       title: Text(
-        '$supplierName',
+        'Supplier Name: $supplierName',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         softWrap: false,
         style: Theme.of(context).textTheme.titleMedium,
       ),
-      subtitle: Text(
+      subtitle:  Text(
         'Time of Arrival: $formattedArrivalTime',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -84,14 +81,18 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       trailing: Checkbox(
         value: true,
-        onChanged: (bool? value) {},
-        checkColor: Colors.transparent,
+        onChanged: (bool? value) {
+          setState(() {
+            orderStatus = value!;
+          });
+        },
+        checkColor: orderStatus ? Colors.deepPurple : Colors.transparent,
       ),
     );
   }
 
   Widget _handleErrorMessage() {
-    return SizedBox.shrink();
+    return const SizedBox.shrink();
 
     // return Observer(
     //   builder: (context) {
@@ -106,18 +107,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // General Methods:-----------------------------------------------------------
   _showErrorMessage(String message) {
-    Future.delayed(Duration(milliseconds: 0), () {
+    Future.delayed(const Duration(milliseconds: 0), () {
       if (message.isNotEmpty) {
-        FlushbarHelper.createError(
-          message: message,
-          title: AppLocalizations.of(context).translate('home_tv_error'),
-          duration: Duration(seconds: 3),
-        )..show(context);
+        // FlushbarHelper.createError(
+        //   message: message,
+        //   title: AppLocalizations.of(context).translate('home_tv_error'),
+        //   duration: Duration(seconds: 3),
+        // )..show(context);
       }
     });
 
-    return SizedBox.shrink();
+    return const SizedBox.shrink();
   }
-
-
 }
