@@ -1,0 +1,87 @@
+[
+    {
+        "supplierName" : "supplierName1",
+        "orderId" : 1000,
+        "orderItems" : [
+            {
+                "partCode" : 500001,
+                "barcode" : 12312314,
+                "product_name_en" : "Chicken Breasts",
+                "product_name_alt" : "鸡胸肉",
+                "quantity" : 1
+            },
+            {
+                "partCode" : 500002,
+                "barcode" : 12312312,
+                "product_name_en" : "Chicken Wings",
+                "product_name_alt" : "鸡翅",
+                "quantity" : 2
+            }
+
+        ],
+        "expectedArrival" : "08:00:00",
+        "assigned" : true
+    },
+    {
+        "supplierName" : "supplierName2",
+        "orderId" : 1001,
+        "orderItems" : [
+            {
+                "partCode" : 701001,
+                "barcode" : 12312322,
+                "product_name_en" : "Canola Oil",
+                "product_name_alt" : "鸡胸肉",
+                "quantity" : 20
+            }
+
+        ],
+        "expectedArrival" : null,
+        "assigned" : false
+    },
+    {
+        "supplierName" : "supplierName1",
+        "orderId" : 1002,
+        "orderItems" : [
+            {
+                "partCode" : 600100,
+                "barcode" : 22312322,
+                "product_name_en" : "Coca Cola 8 - Pack",
+                "product_name_alt" : "鸡胸肉",
+                "quantity" : 20
+            },
+            {
+                "partCode" : 620002,
+                "barcode" : 24412322,
+                "product_name_en" : "Sprite 8 - Pack",
+                "product_name_alt" : "鸡翅",
+                "quantity" : 15
+            }
+
+        ],
+        "expectedArrival" : "10:00:00",
+        "assigned" : false
+    },
+    {
+        "supplierName" : "supplierName1",
+        "orderId" : 1003,
+        "orderItems" : [
+            {
+                "partCode" : 100001,
+                "barcode" : 31112322,
+                "product_name_en" : "Plastic Containers",
+                "product_name_alt" : "鸡胸肉",
+                "quantity" : 20
+            },
+            {
+                "partCode" : 200002,
+                "barcode" : 71112322,
+                "product_name_en" : "Plastic Cups",
+                "product_name_alt" : "鸡翅",
+                "quantity" : 15
+            }
+
+        ],
+        "expectedArrival" : "07:00:00",
+        "assigned" : true
+    }
+]

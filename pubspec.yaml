@@ -92,6 +92,7 @@ dependencies:
   faker: ^2.1.0
   qr_code_scanner: ^1.0.1
   map_launcher: ^2.5.0+1
+  collection: ^1.17.0
 
 dev_dependencies:
   flutter_test:

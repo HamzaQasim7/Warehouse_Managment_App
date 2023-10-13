@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:faker/faker.dart';
 import 'package:another_flushbar/flushbar_helper.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:collection/collection.dart';
 import 'package:second_opinion_app/stores/post/post_store.dart';
+import 'package:second_opinion_app/ui/task/put_away_confirmation_screen.dart';
 import 'package:second_opinion_app/utils/locale/app_localization.dart';
 import 'package:second_opinion_app/widgets/progress_indicator_widget.dart';
 import 'package:flutter/material.dart';
@@ -20,18 +24,62 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
 
   Faker faker = Faker();
 
-  Map<String, String> selectedRow = {};
+  OrderItem selectedRow = OrderItem();
 
-  String? qrScan ;
+  String? qrScan;
+
+  List<Order> order = [];
+
+  Future<List<Order>> loadOrders() async {
+    // Load the JSON file
+    String data = await rootBundle.loadString('assets/lang/my_orders_get_return.json');
+
+    // Decode the JSON data
+    List<dynamic> jsonList = json.decode(data);
+    print(jsonList);
+    // Convert the JSON data to a list of objects
+    List<Order> orders = Order.fromJsonList(jsonList);
+    order = orders;
+    setState(() {});
+    return orders;
+  }
+
+  Future<void> reset(int index) async {
+    // Load the JSON file
+    String data = await rootBundle.loadString('assets/lang/my_orders_get_return.json');
+
+    // Decode the JSON data
+    List<dynamic> jsonList = json.decode(data);
+    print(jsonList);
+    // Convert the JSON data to a list of objects
+    List<Order> orders = Order.fromJsonList(jsonList);
+
+    order[0].orderItems![index] = orders[0].orderItems![index];
+
+    setState(() {});
+
+  }
 
   @override
   void initState() {
+    loadOrders();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => PutAwayOrderConfirmationScreen(
+                        item: order[0].orderItems ?? [],
+                      )));
+        },
+        label: Text('Confirm'),
+      ),
       appBar: _buildAppBar(),
       body: _buildBody(),
     );
@@ -96,7 +144,7 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
       children: [
         _buildBorderedListTile(
           title: 'Procurement ID',
-          trailing: '1',
+          trailing: (order[0].orderId ?? 0).toString(),
         ),
         _buildBorderedListTile(
           title: 'Total Quantity of Boxes',
@@ -104,7 +152,7 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
         ),
         _buildBorderedListTile(
           title: 'Name of the User',
-          trailing: 'John Doe',
+          trailing: order[0].supplierName ?? '',
         ),
         SizedBox(
           height: 50,
@@ -147,8 +195,8 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
         child: child);
   }
 
-  bool mapsAreEqual(Map<String, dynamic> map1, Map<String, dynamic> map2) {
-    if (map1['partCode'] != map2['partCode']) {
+  bool mapsAreEqual(OrderItem map1, OrderItem map2) {
+    if (map1.partCode != map2.partCode) {
       return false;
     }
 
@@ -159,38 +207,50 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
     return DataTable(
       columns: [
         DataColumn(label: Text('')),
-        DataColumn(label: Text('Internal Part Code/SKU')),
-        DataColumn(label: Text('Product Name (English)')),
-        DataColumn(label: Text('Alternate Name')),
-        DataColumn(label: Text('Units in Order')),
-        DataColumn(label: Text('Inventory Location')),
+        DataColumn(label: Text('Internal \nPart Code/SKU')),
+        DataColumn(label: Text('Product Name \n(English)')),
+        DataColumn(label: Text('Alternate \nName')),
+        DataColumn(label: Text('Units \nin Order')),
+        DataColumn(label: Text('Inventory \nLocation')),
       ],
-      rows: data.map((item) {
-        return DataRow(
-            selected: mapsAreEqual(item, selectedRow),
-            onLongPress: () {
-              _showDialog(context);
-              setState(() {
-                selectedRow = item;
-              });
-            },
-            cells: [
-              DataCell(ElevatedButton(
-
-                  onPressed: () {
-
-                    setState(() {
-                      selectedRow = {};
-                    });
-                  },
-                  child: Text('Reset'))),
-              DataCell(Text(item['partCode'] ?? '')),
-              DataCell(Text(item['productName'] ?? '')),
-              DataCell(Text(item['alternateName'] ?? '')),
-              DataCell(Text(item['unitsInOrder'] ?? '')),
-              DataCell(Text(item['inventoryLocation'] ?? '')),
-            ]);
-      }).toList(),
+      rows: (order[0].orderItems?.mapIndexed((index, item) {
+                return DataRow(
+                    color: MaterialStateProperty.all(item.quantity == 0 ? Colors.grey.shade300 : null),
+                    selected: mapsAreEqual(item, selectedRow),
+                    onLongPress: () async {
+                      if (item.quantity != 0) {
+                        _showDialog(context).then((value) {
+                          if (value['code'] != item.barcode.toString()) {
+                            setState(() {
+                              item.quantity = (item.quantity ?? 0) - int.parse(value['quantity']!);
+                            });
+                          }
+                        });
+                        setState(() {
+                          selectedRow = item;
+                        });
+                      }
+                    },
+                    cells: [
+                      DataCell(ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              reset(index);
+                            });
+                          },
+                          child: Text('Reset'))),
+                      DataCell(Text(item.partCode.toString() ?? '')),
+                      DataCell(Text(item.productNameEn ?? '')),
+                      DataCell(Text(item.productNameAlt ?? '')),
+                      DataCell(Text(
+                        item.quantity.toString() ?? '',
+                        style: TextStyle(color: item.quantity! > 0 ? Colors.red : Colors.green),
+                      )),
+                      DataCell(Text(item.quantity.toString() ?? '')),
+                    ]);
+              }) ??
+              [])
+          .toList(),
     );
   }
 
@@ -238,8 +298,8 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
     );
   }
 
-  void _showDialog(BuildContext context) {
-    showDialog(
+  Future<Map<String, String?>> _showDialog(BuildContext context) async {
+    return await showDialog(
       context: context,
       builder: (BuildContext context) {
         return QuantityDialog();
@@ -277,9 +337,6 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
   }
 }
 
-
-
-
 class QuantityDialog extends StatefulWidget {
   @override
   _QuantityDialogState createState() => _QuantityDialogState();
@@ -288,37 +345,143 @@ class QuantityDialog extends StatefulWidget {
 class _QuantityDialogState extends State<QuantityDialog> {
   String? qrScan;
 
+  List<String> options = ['1'];
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Quantity'),
       content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          TextField(
-            decoration: InputDecoration(labelText: 'Enter Quantity'),
-          ),
+          buildDropdownWidget(options),
           SizedBox(height: 20),
           qrScan == null
-              ? Center(
-            child: ElevatedButton(
-              onPressed: () {
-                // Perform the scan action here
-                Navigator.push(context, MaterialPageRoute(builder: (context) => QRViewExample())).then((value) {
-                  if (value != null) {
-                    setState(() {
-                      qrScan = value;
-                      print('object');
-                    });
-                  }
-                }); // Close the dialog
-              },
-              child: Text('Scan Code'),
-            ),
-          )
+              ? ElevatedButton(
+                  onPressed: () {
+                    // Perform the scan action here
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => QRViewExample())).then((value) {
+                      if (value != null) {
+                        setState(() {
+                          qrScan = value;
+                          print('object');
+                        });
+                      }
+                    }); // Close the dialog
+                  },
+                  child: Text('Scan Code'),
+                )
               : Text('Scanned Code : $qrScan'),
+          qrScan != null
+              ? ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context, {'quantity': dropdownValue, 'code': qrScan});
+                  },
+                  child: Text('Confirm'))
+              : SizedBox.shrink()
         ],
       ),
     );
+  }
+
+  String dropdownValue = '1';
+
+  Widget buildDropdownWidget(List<String> options) {
+    // Initially selected value
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: DropdownButton<String>(
+        value: dropdownValue,
+        icon: Icon(Icons.arrow_drop_down),
+        iconSize: 24,
+        elevation: 16,
+        style: TextStyle(color: Colors.black, fontSize: 16),
+        underline: Container(
+          height: 2,
+          color: Colors.transparent,
+        ),
+        onChanged: (String? newValue) {
+          dropdownValue = newValue!;
+        },
+        items: options.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class Order {
+  String? supplierName;
+  int? orderId;
+  List<OrderItem>? orderItems;
+  String? expectedArrival;
+  bool? assigned;
+
+  Order({this.supplierName, this.orderId, this.orderItems, this.expectedArrival, this.assigned});
+
+  factory Order.fromJson(Map<String, dynamic> json) {
+    return Order(
+      supplierName: json['supplierName'],
+      orderId: json['orderId'],
+      orderItems: json['orderItems'] != null ? List<OrderItem>.from(json['orderItems'].map((x) => OrderItem.fromJson(x))) : null,
+      expectedArrival: json['expectedArrival'],
+      assigned: json['assigned'],
+    );
+  }
+
+  static List<Order> fromJsonList(List<dynamic> jsonList) {
+    return jsonList.map((json) => Order.fromJson(json)).toList();
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['supplierName'] = this.supplierName;
+    data['orderId'] = this.orderId;
+    if (this.orderItems != null) {
+      data['orderItems'] = this.orderItems!.map((v) => v.toJson()).toList();
+    }
+    data['expectedArrival'] = this.expectedArrival;
+    data['assigned'] = this.assigned;
+    return data;
+  }
+}
+
+class OrderItem {
+  int? partCode;
+  int? barcode;
+  String? productNameEn;
+  String? productNameAlt;
+  int? quantity;
+
+  OrderItem({this.partCode, this.barcode, this.productNameEn, this.productNameAlt, this.quantity});
+
+  factory OrderItem.fromJson(Map<String, dynamic> json) {
+    return OrderItem(
+      partCode: json['partCode'],
+      barcode: json['barcode'],
+      productNameEn: json['product_name_en'],
+      productNameAlt: json['product_name_alt'],
+      quantity: json['quantity'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['partCode'] = this.partCode;
+    data['barcode'] = this.barcode;
+    data['product_name_en'] = this.productNameEn;
+    data['product_name_alt'] = this.productNameAlt;
+    data['quantity'] = this.quantity;
+    return data;
   }
 }

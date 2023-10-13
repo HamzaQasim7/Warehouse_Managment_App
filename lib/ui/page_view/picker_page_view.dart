@@ -53,12 +53,12 @@ class _PickerPageViewScreenState extends State<PickerPageViewScreen> {
       return 'Home';
 
     } else if(currentPageIndex == 1){
-      return 'My Orders';
+      return 'My Picking Tasks';
 
     }
     else{
 
-      return 'Put Away Orders';
+      return 'Pick Order';
     }
 
 
@@ -129,14 +129,14 @@ class _PickerPageViewScreenState extends State<PickerPageViewScreen> {
           Icons.task,
           //color: currentPageIndex == 1 ? Theme.of(context).primaryColor : Colors.black38,
         ),
-        label: 'My Tasks',
+        label: 'My Picking Tasks',
       ),
       const NavigationDestination(
         icon: Icon(
           Icons.category,
           //color: currentPageIndex == 2 ? Theme.of(context).primaryColor : Colors.black38,
         ),
-        label: 'Tasks',
+        label: 'Pick Order',
       ),
 
     ];

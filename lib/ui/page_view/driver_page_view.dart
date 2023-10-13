@@ -127,7 +127,7 @@ class _DriverPageViewScreenState extends State<DriverPageViewScreen> {
           Icons.category,
           //color: currentPageIndex == 2 ? Theme.of(context).primaryColor : Colors.black38,
         ),
-        label: 'Put Away Order',
+        label: 'Pick Order',
       ),
     ];
   }
