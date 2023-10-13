@@ -4,6 +4,7 @@ import 'package:second_opinion_app/ui/mode/mode.dart';
 import 'package:second_opinion_app/ui/splash/splash.dart';
 import 'package:flutter/material.dart';
 
+import '../../ui/login/auth.dart';
 import '../../ui/page_view/driver_page_view.dart';
 import '../../ui/page_view/home_page_view.dart';
 import '../../ui/page_view/picker_page_view.dart';
@@ -21,6 +22,7 @@ class Routes {
   static const String receiverPageView = '/receiverPageView';
   static const String pickerPageView = '/pickerPageView';
   static const String modeSelection = '/modeSelection';
+  static const String auth = '/auth';
 
   static final routes = <String, WidgetBuilder>{
     splash: (BuildContext context) => SplashScreen(),
@@ -31,5 +33,6 @@ class Routes {
     receiverPageView: (BuildContext context) => ReceiverPageViewScreen(),
     modeSelection: (BuildContext context) => ModeSelectionScreen(),
     pickerPageView: (BuildContext context) => PickerPageViewScreen(),
+    auth: (BuildContext context) => AuthScreen(),
   };
 }

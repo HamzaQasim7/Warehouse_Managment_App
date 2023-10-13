@@ -1,25 +1,26 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:faker/faker.dart';
-import 'package:another_flushbar/flushbar_helper.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
-import 'package:second_opinion_app/stores/post/post_store.dart';
-import 'package:second_opinion_app/ui/task/put_away_confirmation_screen.dart';
-import 'package:second_opinion_app/utils/locale/app_localization.dart';
-import 'package:second_opinion_app/widgets/progress_indicator_widget.dart';
+import 'package:another_flushbar/flushbar_helper.dart';
+import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:intl/intl.dart';
+import 'package:second_opinion_app/ui/driver/pick_order_confirmation_screen.dart';
 
+import '../../utils/locale/app_localization.dart';
+import '../../widgets/progress_indicator_widget.dart';
 import '../scanner/scanner.dart';
+import '../task/put_away_order_detail.dart';
+import 'driver_complete_delivery_confirmation.dart';
 
-class PutAwayOrderDetailScreen extends StatefulWidget {
+class CompleteDeliveryDetailScreen extends StatefulWidget {
   @override
-  _PutAwayOrderDetailScreenState createState() => _PutAwayOrderDetailScreenState();
+  _CompleteDeliveryDetailScreenState createState() => _CompleteDeliveryDetailScreenState();
 }
 
-class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
+class _CompleteDeliveryDetailScreenState extends State<CompleteDeliveryDetailScreen> {
   //stores:---------------------------------------------------------------------
 
   Faker faker = Faker();
@@ -28,7 +29,7 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
 
   String? qrScan;
 
-  List<Order> order = [];
+  List<Order> ordersss = [];
 
   Future<List<Order>> loadOrders() async {
     // Load the JSON file
@@ -39,7 +40,7 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
     print(jsonList);
     // Convert the JSON data to a list of objects
     List<Order> orders = Order.fromJsonList(jsonList);
-    order = orders;
+    ordersss = orders;
     setState(() {});
     return orders;
   }
@@ -54,7 +55,7 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
     // Convert the JSON data to a list of objects
     List<Order> orders = Order.fromJsonList(jsonList);
 
-    order[0].orderItems![index] = orders[0].orderItems![index];
+    ordersss[0].orderItems![index] = orders[0].orderItems![index];
 
     setState(() {});
   }
@@ -71,11 +72,13 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => PutAwayOrderConfirmationScreen(
-                        item: order[0].orderItems ?? [],
-                      )));
+            context,
+            MaterialPageRoute(
+              builder: (context) => CompleteDeliveryConfirmationScreen(
+                item: ordersss[0].orderItems ?? [],
+              ),
+            ),
+          );
         },
         label: Text('Confirm'),
       ),
@@ -87,7 +90,7 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
   // app bar methods:-----------------------------------------------------------
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      title: Text('Orders'),
+      title: Text('Complete Delivery'),
     );
   }
 
@@ -107,8 +110,8 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
         return false
             ? CustomProgressIndicatorWidget()
             : Material(
-                child: _buildListView(),
-              );
+          child: _buildListView(),
+        );
       },
     );
   }
@@ -143,7 +146,7 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
       children: [
         _buildBorderedListTile(
           title: 'Procurement ID',
-          trailing: (order[0].orderId ?? 0).toString(),
+          trailing: (ordersss[0].orderId ?? 0).toString(),
         ),
         _buildBorderedListTile(
           title: 'Total Quantity of Boxes',
@@ -151,7 +154,7 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
         ),
         _buildBorderedListTile(
           title: 'Name of the User',
-          trailing: order[0].supplierName ?? '',
+          trailing: ordersss[0].supplierName ?? '',
         ),
         SizedBox(
           height: 50,
@@ -188,7 +191,7 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
           border: Border(
             top: BorderSide(width: 1.0, color: Theme.of(context).dividerColor), // Top border
             bottom:
-                (disableBottom ?? false) ? BorderSide.none : BorderSide(width: 1.0, color: Theme.of(context).dividerColor), // Bottom border
+            (disableBottom ?? false) ? BorderSide.none : BorderSide(width: 1.0, color: Theme.of(context).dividerColor), // Bottom border
           ),
         ),
         child: child);
@@ -212,43 +215,43 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
         DataColumn(label: Text('Units \nin Order')),
         DataColumn(label: Text('Inventory \nLocation')),
       ],
-      rows: (order[0].orderItems?.mapIndexed((index, item) {
-                return DataRow(
-                    color: MaterialStateProperty.all(item.quantity == 0 ? Colors.grey.shade300 : null),
-                    selected: mapsAreEqual(item, selectedRow),
-                    onLongPress: () async {
-                      if (item.quantity != 0) {
-                        _showDialog(context).then((value) {
-                          if (value['code'] != item.barcode.toString()) {
-                            setState(() {
-                              item.quantity = (item.quantity ?? 0) - int.parse(value['quantity']!);
-                            });
-                          }
-                        });
-                        setState(() {
-                          selectedRow = item;
-                        });
-                      }
-                    },
-                    cells: [
-                      DataCell(ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              reset(index);
-                            });
-                          },
-                          child: Text('Reset'))),
-                      DataCell(Text(item.partCode.toString() ?? '')),
-                      DataCell(Text(item.productNameEn ?? '')),
-                      DataCell(Text(item.productNameAlt ?? '')),
-                      DataCell(Text(
-                        item.quantity.toString() ?? '',
-                        style: TextStyle(color: item.quantity! > 0 ? Colors.red : Colors.green),
-                      )),
-                      DataCell(Text(item.quantity.toString() ?? '')),
-                    ]);
-              }) ??
-              [])
+      rows: (ordersss[0].orderItems?.mapIndexed((index, item) {
+        return DataRow(
+            color: MaterialStateProperty.all(item.quantity == 0 ? Colors.grey.shade300 : null),
+            selected: mapsAreEqual(item, selectedRow),
+            onLongPress: () async {
+              if (item.quantity != 0) {
+                _showDialog(context).then((value) {
+                  if (value['code'] != item.barcode.toString()) {
+                    setState(() {
+                      item.quantity = (item.quantity ?? 0) - int.parse(value['quantity']!);
+                    });
+                  }
+                });
+                setState(() {
+                  selectedRow = item;
+                });
+              }
+            },
+            cells: [
+              DataCell(ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      reset(index);
+                    });
+                  },
+                  child: Text('Reset'))),
+              DataCell(Text(item.partCode.toString() ?? '')),
+              DataCell(Text(item.productNameEn ?? '')),
+              DataCell(Text(item.productNameAlt ?? '')),
+              DataCell(Text(
+                item.quantity.toString() ?? '',
+                style: TextStyle(color: item.quantity! > 0 ? Colors.red : Colors.green),
+              )),
+              DataCell(Text(item.quantity.toString() ?? '')),
+            ]);
+      }) ??
+          [])
           .toList(),
     );
   }
@@ -273,7 +276,7 @@ class _PutAwayOrderDetailScreenState extends State<PutAwayOrderDetailScreen> {
     String formattedArrivalTime = DateFormat('dd, MMM yyyy hh:mm a').format(arrivalTime);
     return ListTile(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => PutAwayOrderDetailScreen()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteDeliveryDetailScreen()));
       },
       dense: true,
       title: Text(
@@ -358,26 +361,26 @@ class _QuantityDialogState extends State<QuantityDialog> {
           SizedBox(height: 20),
           qrScan == null
               ? ElevatedButton(
-                  onPressed: () {
-                    // Perform the scan action here
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => QRViewExample())).then((value) {
-                      if (value != null) {
-                        setState(() {
-                          qrScan = value;
-                          print('object');
-                        });
-                      }
-                    }); // Close the dialog
-                  },
-                  child: Text('Scan Code'),
-                )
+            onPressed: () {
+              // Perform the scan action here
+              Navigator.push(context, MaterialPageRoute(builder: (context) => QRViewExample())).then((value) {
+                if (value != null) {
+                  setState(() {
+                    qrScan = value;
+                    print('object');
+                  });
+                }
+              }); // Close the dialog
+            },
+            child: Text('Scan Code'),
+          )
               : Text('Scanned Code : $qrScan'),
           qrScan != null
               ? ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context, {'quantity': dropdownValue, 'code': qrScan});
-                  },
-                  child: Text('Confirm'))
+              onPressed: () {
+                Navigator.pop(context, {'quantity': dropdownValue, 'code': qrScan});
+              },
+              child: Text('Confirm'))
               : SizedBox.shrink()
         ],
       ),
@@ -419,68 +422,3 @@ class _QuantityDialogState extends State<QuantityDialog> {
   }
 }
 
-class Order {
-  String? supplierName;
-  int? orderId;
-  List<OrderItem>? orderItems;
-  String? expectedArrival;
-  bool? assigned;
-
-  Order({this.supplierName, this.orderId, this.orderItems, this.expectedArrival, this.assigned});
-
-  factory Order.fromJson(Map<String, dynamic> json) {
-    return Order(
-      supplierName: json['supplierName'],
-      orderId: json['orderId'],
-      orderItems: json['orderItems'] != null ? List<OrderItem>.from(json['orderItems'].map((x) => OrderItem.fromJson(x))) : null,
-      expectedArrival: json['expectedArrival'],
-      assigned: json['assigned'],
-    );
-  }
-
-  static List<Order> fromJsonList(List<dynamic> jsonList) {
-    return jsonList.map((json) => Order.fromJson(json)).toList();
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['supplierName'] = this.supplierName;
-    data['orderId'] = this.orderId;
-    if (this.orderItems != null) {
-      data['orderItems'] = this.orderItems!.map((v) => v.toJson()).toList();
-    }
-    data['expectedArrival'] = this.expectedArrival;
-    data['assigned'] = this.assigned;
-    return data;
-  }
-}
-
-class OrderItem {
-  int? partCode;
-  int? barcode;
-  String? productNameEn;
-  String? productNameAlt;
-  int? quantity;
-
-  OrderItem({this.partCode, this.barcode, this.productNameEn, this.productNameAlt, this.quantity});
-
-  factory OrderItem.fromJson(Map<String, dynamic> json) {
-    return OrderItem(
-      partCode: json['partCode'],
-      barcode: json['barcode'],
-      productNameEn: json['product_name_en'],
-      productNameAlt: json['product_name_alt'],
-      quantity: json['quantity'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['partCode'] = this.partCode;
-    data['barcode'] = this.barcode;
-    data['product_name_en'] = this.productNameEn;
-    data['product_name_alt'] = this.productNameAlt;
-    data['quantity'] = this.quantity;
-    return data;
-  }
-}

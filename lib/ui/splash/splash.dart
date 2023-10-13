@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:second_opinion_app/constants/assets.dart';
 import 'package:second_opinion_app/data/sharedpref/constants/preferences.dart';
 import 'package:second_opinion_app/utils/routes/routes.dart';

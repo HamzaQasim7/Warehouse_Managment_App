@@ -10,17 +10,18 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:second_opinion_app/widgets/textfield_widget.dart';
 
 import '../scanner/scanner.dart';
+import 'connect_vehicle_screen.dart';
 
-class PutAwayOrderConfirmationScreen extends StatefulWidget {
+class PickOrderConfirmationScreen extends StatefulWidget {
   final List<OrderItem> item;
 
-  const PutAwayOrderConfirmationScreen({super.key, required this.item});
+  const PickOrderConfirmationScreen({super.key, required this.item});
 
   @override
-  _PutAwayOrderConfirmationScreenState createState() => _PutAwayOrderConfirmationScreenState();
+  _PickOrderConfirmationScreenState createState() => _PickOrderConfirmationScreenState();
 }
 
-class _PutAwayOrderConfirmationScreenState extends State<PutAwayOrderConfirmationScreen> {
+class _PickOrderConfirmationScreenState extends State<PickOrderConfirmationScreen> {
   //stores:---------------------------------------------------------------------
 
   Faker faker = Faker();
@@ -45,7 +46,7 @@ class _PutAwayOrderConfirmationScreenState extends State<PutAwayOrderConfirmatio
       floatingActionButton: FloatingActionButton.extended(
         label: Text('Confirm'),
         onPressed: () {
-          showDialog(context: context, builder: (context) => ConfirmationDialog(item: order));
+          showDialog(context: context, builder: (context) => ConfirmationDialog(item: order, onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context)=>ConnectVehicleScreen(item: order))); },));
         },
       ),
       appBar: _buildAppBar(),
@@ -76,8 +77,8 @@ class _PutAwayOrderConfirmationScreenState extends State<PutAwayOrderConfirmatio
         return false
             ? CustomProgressIndicatorWidget()
             : Material(
-                child: _buildListView(),
-              );
+          child: _buildListView(),
+        );
       },
     );
   }
@@ -131,7 +132,9 @@ class _PutAwayOrderConfirmationScreenState extends State<PutAwayOrderConfirmatio
               child: _buildDataTableView(
                 orderContents,
               ),
-            ))
+            )),
+
+
       ],
     );
   }
@@ -142,7 +145,7 @@ class _PutAwayOrderConfirmationScreenState extends State<PutAwayOrderConfirmatio
           border: Border(
             top: BorderSide(width: 1.0, color: Theme.of(context).dividerColor), // Top border
             bottom:
-                (disableBottom ?? false) ? BorderSide.none : BorderSide(width: 1.0, color: Theme.of(context).dividerColor), // Bottom border
+            (disableBottom ?? false) ? BorderSide.none : BorderSide(width: 1.0, color: Theme.of(context).dividerColor), // Bottom border
           ),
         ),
         child: child);
@@ -166,21 +169,21 @@ class _PutAwayOrderConfirmationScreenState extends State<PutAwayOrderConfirmatio
         DataColumn(label: Text('Inventory \nLocation')),
       ],
       rows: (order.mapIndexed((index, item) {
-                return DataRow(
-                    color: MaterialStateProperty.all(item.quantity == 0 ? Colors.grey.shade300 : null),
-                    selected: mapsAreEqual(item, selectedRow),
-                    cells: [
-                      DataCell(Text(item.partCode.toString() ?? '')),
-                      DataCell(Text(item.productNameEn ?? '')),
-                      DataCell(Text(item.productNameAlt ?? '')),
-                      DataCell(Text(
-                        item.quantity.toString() ?? '',
-                        style: TextStyle(color: item.quantity! > 0 ? Colors.red : Colors.green),
-                      )),
-                      DataCell(Text(item.quantity.toString() ?? '')),
-                    ]);
-              }) ??
-              [])
+        return DataRow(
+            color: MaterialStateProperty.all(item.quantity == 0 ? Colors.grey.shade300 : null),
+            selected: mapsAreEqual(item, selectedRow),
+            cells: [
+              DataCell(Text(item.partCode.toString() ?? '')),
+              DataCell(Text(item.productNameEn ?? '')),
+              DataCell(Text(item.productNameAlt ?? '')),
+              DataCell(Text(
+                item.quantity.toString() ?? '',
+                style: TextStyle(color: item.quantity! > 0 ? Colors.red : Colors.green),
+              )),
+              DataCell(Text(item.quantity.toString() ?? '')),
+            ]);
+      }) ??
+          [])
           .toList(),
     );
   }
@@ -231,8 +234,9 @@ class _PutAwayOrderConfirmationScreenState extends State<PutAwayOrderConfirmatio
 
 class ConfirmationDialog extends StatefulWidget {
   final List<OrderItem> item;
+  final VoidCallback onPressed;
 
-  const ConfirmationDialog({super.key, required this.item});
+  const ConfirmationDialog({super.key, required this.item, required this.onPressed});
 
   @override
   _ConfirmationDialogState createState() => _ConfirmationDialogState();
@@ -275,18 +279,22 @@ class _ConfirmationDialogState extends State<ConfirmationDialog> {
           SizedBox(height: 20),
           allZero
               ? ElevatedButton(
-                  onPressed: () {},
-                  child: Text('Confirm'),
-                )
+            onPressed: () {
+
+              widget.onPressed();
+
+            },
+            child: Text('Confirm'),
+          )
               : ElevatedButton(
-                  onPressed: () {
-                    if (_textEditingController.text.isNotEmpty) {
-                      Navigator.pop(context);
-                    } else {
-                      FlushbarHelper.createError(message: 'Enter Admin Code').show(context);
-                    }
-                  },
-                  child: Text('Confirm'))
+              onPressed: () {
+                if (_textEditingController.text.isNotEmpty) {
+                  widget.onPressed();
+                } else {
+                  FlushbarHelper.createError(message: 'Enter Admin Code').show(context);
+                }
+              },
+              child: Text('Confirm'))
         ],
       ),
     );
