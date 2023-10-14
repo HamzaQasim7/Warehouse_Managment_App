@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/sharedpref/constants/preferences.dart';
 import '../../stores/theme/theme_store.dart';
 import '../../utils/routes/routes.dart';
+import '../driver/driver_complete_delivery.dart';
 import '../driver/load_delivery.dart';
 import '../driver/my_deliveries.dart';
 import '../home/driver_home.dart';
@@ -102,6 +103,7 @@ class _DriverPageViewScreenState extends State<DriverPageViewScreen> {
       DriverHomeScreen(),
       DeliveryScreen(),
       LoadDeliveryScreen(),
+      CompleteDeliveryScreen()
     ][currentPageIndex];
   }
 
@@ -128,6 +130,12 @@ class _DriverPageViewScreenState extends State<DriverPageViewScreen> {
           //color: currentPageIndex == 2 ? Theme.of(context).primaryColor : Colors.black38,
         ),
         label: 'Pick Order',
+      ),NavigationDestination(
+        icon: Icon(
+          Icons.delivery_dining,
+          //color: currentPageIndex == 2 ? Theme.of(context).primaryColor : Colors.black38,
+        ),
+        label: 'Complete Delivery',
       ),
     ];
   }

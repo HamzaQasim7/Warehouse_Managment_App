@@ -7,20 +7,19 @@ import 'package:second_opinion_app/utils/locale/app_localization.dart';
 import 'package:second_opinion_app/widgets/progress_indicator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:second_opinion_app/widgets/textfield_widget.dart';
 
 import '../scanner/scanner.dart';
 
-class PutAwayOrderConfirmationScreen extends StatefulWidget {
+class ConnectVehicleScreen extends StatefulWidget {
   final List<OrderItem> item;
 
-  const PutAwayOrderConfirmationScreen({super.key, required this.item});
+  const ConnectVehicleScreen({super.key, required this.item});
 
   @override
-  _PutAwayOrderConfirmationScreenState createState() => _PutAwayOrderConfirmationScreenState();
+  _ConnectVehicleScreenState createState() => _ConnectVehicleScreenState();
 }
 
-class _PutAwayOrderConfirmationScreenState extends State<PutAwayOrderConfirmationScreen> {
+class _ConnectVehicleScreenState extends State<ConnectVehicleScreen> {
   //stores:---------------------------------------------------------------------
 
   Faker faker = Faker();
@@ -44,9 +43,7 @@ class _PutAwayOrderConfirmationScreenState extends State<PutAwayOrderConfirmatio
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         label: Text('Confirm'),
-        onPressed: () {
-          showDialog(context: context, builder: (context) => ConfirmationDialog(item: order));
-        },
+        onPressed: () {},
       ),
       appBar: _buildAppBar(),
       body: _buildBody(),
@@ -56,7 +53,7 @@ class _PutAwayOrderConfirmationScreenState extends State<PutAwayOrderConfirmatio
   // app bar methods:-----------------------------------------------------------
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      title: Text('Confirm Order'),
+      title: Text('Connect Vehicle'),
     );
   }
 
@@ -108,44 +105,53 @@ class _PutAwayOrderConfirmationScreenState extends State<PutAwayOrderConfirmatio
       // Add more data rows as needed
     ];
 
-    return ListView(
-      children: [
-        _buildBorderedChild(
-            disableBottom: true,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Confirm Data Table',
-                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 30),
+    return Center(
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          _buildBorderedChild(
+              disableBottom: true,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Connect Vehicle',
+                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 30),
+                ),
+              )),
+          qrScan == null
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                      height: 80,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => ConnectVehicleDialog(
+                                onPressed: (value) {
+                                  setState(() {
+                                    qrScan = value;
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                          child: Text('Scan Vehicle Code'))),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(14.0),
+                  child: Text(
+                    'Vehicle Code : $qrScan',
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                  Icon(Icons.forward)
-                ],
-              ),
-            )),
-        SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: _buildBorderedChild(
-              child: _buildDataTableView(
-                orderContents,
-              ),
-            ))
-      ],
+                )
+        ],
+      ),
     );
   }
 
   Widget _buildBorderedChild({required Widget child, bool? disableBottom}) {
-    return Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(width: 1.0, color: Theme.of(context).dividerColor), // Top border
-            bottom:
-                (disableBottom ?? false) ? BorderSide.none : BorderSide(width: 1.0, color: Theme.of(context).dividerColor), // Bottom border
-          ),
-        ),
-        child: child);
+    return child;
   }
 
   bool mapsAreEqual(OrderItem map1, OrderItem map2) {
@@ -229,78 +235,46 @@ class _PutAwayOrderConfirmationScreenState extends State<PutAwayOrderConfirmatio
   }
 }
 
-class ConfirmationDialog extends StatefulWidget {
-  final List<OrderItem> item;
+class ConnectVehicleDialog extends StatefulWidget {
+  final Function(String) onPressed;
 
-  const ConfirmationDialog({super.key, required this.item});
+  const ConnectVehicleDialog({
+    super.key,
+    required this.onPressed,
+  });
 
   @override
-  _ConfirmationDialogState createState() => _ConfirmationDialogState();
+  _ConnectVehicleDialogState createState() => _ConnectVehicleDialogState();
 }
 
-class _ConfirmationDialogState extends State<ConfirmationDialog> {
+class _ConnectVehicleDialogState extends State<ConnectVehicleDialog> {
   String? qrScan;
-  bool allZero = false;
-  List<String> options = ['1'];
-
-  bool checkAllZeros(List<OrderItem> list) {
-    return list.every((element) => element.quantity == 0);
-  }
-
-  TextEditingController _textEditingController = TextEditingController();
-
-  @override
-  void dispose() {
-    _textEditingController.dispose();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    setState(() {
-      allZero = checkAllZeros(widget.item);
-    });
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Confirm Action'),
+      title: Text('Scan Vehicle Code'),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          if (!allZero) buildDropdownWidget(),
-          SizedBox(height: 20),
-          allZero
-              ? ElevatedButton(
-                  onPressed: () {},
-                  child: Text('Confirm'),
-                )
+          qrScan != null
+              ? Text(qrScan!)
               : ElevatedButton(
                   onPressed: () {
-                    if (_textEditingController.text.isNotEmpty) {
-                      Navigator.pop(context);
-                    } else {
-                      FlushbarHelper.createError(message: 'Enter Admin Code').show(context);
-                    }
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => QRViewExample())).then((value) {
+                      if (value != null) {
+                        setState(() {
+                          qrScan = value;
+                          widget.onPressed(qrScan ?? '');
+                          Navigator.pop(context);
+                        });
+                      }
+                    });
                   },
-                  child: Text('Confirm'))
+                  child: Text('Scan'))
         ],
       ),
-    );
-  }
-
-  String dropdownValue = '1';
-
-  Widget buildDropdownWidget() {
-    // Initially selected value
-
-    return TextFieldWidget(
-      textController: _textEditingController,
-      hint: 'Enter admin code to continue',
-      labelText: 'Admin Code',
     );
   }
 }

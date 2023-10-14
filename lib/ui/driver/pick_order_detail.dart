@@ -1,15 +1,18 @@
+import 'dart:convert';
 import 'dart:math';
-import 'package:faker/faker.dart';
+import 'package:collection/collection.dart';
 import 'package:another_flushbar/flushbar_helper.dart';
-import 'package:intl/intl.dart';
-import 'package:map_launcher/map_launcher.dart';
-import 'package:second_opinion_app/stores/post/post_store.dart';
-import 'package:second_opinion_app/utils/locale/app_localization.dart';
-import 'package:second_opinion_app/widgets/progress_indicator_widget.dart';
+import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:intl/intl.dart';
+import 'package:second_opinion_app/ui/driver/pick_order_confirmation_screen.dart';
 
+import '../../utils/locale/app_localization.dart';
+import '../../widgets/progress_indicator_widget.dart';
 import '../scanner/scanner.dart';
+import '../task/put_away_order_detail.dart';
 
 class PickOrderDetailScreen extends StatefulWidget {
   @override
@@ -21,18 +24,63 @@ class _PickOrderDetailScreenState extends State<PickOrderDetailScreen> {
 
   Faker faker = Faker();
 
-  Map<String, String> selectedRow = {};
+  OrderItem selectedRow = OrderItem();
 
-  String? qrScan ;
+  String? qrScan;
+
+  List<Order> ordersss = [];
+
+  Future<List<Order>> loadOrders() async {
+    // Load the JSON file
+    String data = await rootBundle.loadString('assets/lang/my_orders_get_return.json');
+
+    // Decode the JSON data
+    List<dynamic> jsonList = json.decode(data);
+    print(jsonList);
+    // Convert the JSON data to a list of objects
+    List<Order> orders = Order.fromJsonList(jsonList);
+    ordersss = orders;
+    setState(() {});
+    return orders;
+  }
+
+  Future<void> reset(int index) async {
+    // Load the JSON file
+    String data = await rootBundle.loadString('assets/lang/my_orders_get_return.json');
+
+    // Decode the JSON data
+    List<dynamic> jsonList = json.decode(data);
+    print(jsonList);
+    // Convert the JSON data to a list of objects
+    List<Order> orders = Order.fromJsonList(jsonList);
+
+    ordersss[0].orderItems![index] = orders[0].orderItems![index];
+
+    setState(() {});
+  }
 
   @override
   void initState() {
+    loadOrders();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PickOrderConfirmationScreen(
+                item: ordersss[0].orderItems ?? [],
+              ),
+            ),
+          );
+        },
+        label: Text('Confirm'),
+      ),
       appBar: _buildAppBar(),
       body: _buildBody(),
     );
@@ -61,8 +109,8 @@ class _PickOrderDetailScreenState extends State<PickOrderDetailScreen> {
         return false
             ? CustomProgressIndicatorWidget()
             : Material(
-          child: _buildListView(),
-        );
+                child: _buildListView(),
+              );
       },
     );
   }
@@ -93,97 +141,63 @@ class _PickOrderDetailScreenState extends State<PickOrderDetailScreen> {
       // Add more data rows as needed
     ];
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ListView(
-        children: [
-          Card(
-            elevation: 0,
-            color: Theme.of(context).primaryColor.withOpacity(0.2),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Order Information',
-                        style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 24),
-                      ),
-
-                    ],
+    return ListView(
+      children: [
+        _buildBorderedListTile(
+          title: 'Procurement ID',
+          trailing: (ordersss[0].orderId ?? 0).toString(),
+        ),
+        _buildBorderedListTile(
+          title: 'Total Quantity of Boxes',
+          trailing: '50',
+        ),
+        _buildBorderedListTile(
+          title: 'Name of the User',
+          trailing: ordersss[0].supplierName ?? '',
+        ),
+        SizedBox(
+          height: 50,
+        ),
+        _buildBorderedChild(
+            disableBottom: true,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Data Table',
+                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 30),
                   ),
-                ),
-
-                _buildBorderedListTile(
-                  title: 'Order ID',
-                  trailing: '1',
-                ),
-                Divider(),
-                _buildBorderedListTile(
-                  title: 'Total Quantity of Boxes',
-                  trailing: '50',
-                ),             Divider(),
-                _buildBorderedListTile(
-                  title: 'Name of the User',
-                  trailing: 'John Doe',
-                ),             Divider(),
-                _buildBorderedListTile(
-                    title: 'Delivery Address',
-                    trailing: faker.address.streetAddress().toString(),
-                    onTap: () async {
-                      if (await MapLauncher.isMapAvailable(MapType.google) ?? false) {
-                        await MapLauncher.showMarker(
-                          mapType: MapType.google,
-                          coords: Coords(faker.geo.latitude(), faker.geo.longitude()),
-                          title: '',
-                        );
-                      }
-                    }),
-              ],
-            ),
-          ),
-          Card(
-            elevation: 0,
-            color: Theme.of(context).primaryColor.withOpacity(0.2),
-            child: Column(
-              children: [
-                _buildBorderedChild(
-                  disableBottom: true,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Data Table',
-                          style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 24),
-                        ),
-                        Text('Horizontally Scrollable')
-                      ],
-                    ),
-                  ),
-                ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: _buildDataTableView(
-                    orderContents,
-                  ),),
-              ],
-            ),
-          )
-        ],
-      ),
+                  Icon(Icons.forward)
+                ],
+              ),
+            )),
+        SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: _buildBorderedChild(
+              child: _buildDataTableView(
+                orderContents,
+              ),
+            ))
+      ],
     );
   }
 
   Widget _buildBorderedChild({required Widget child, bool? disableBottom}) {
-    return child;
+    return Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(width: 1.0, color: Theme.of(context).dividerColor), // Top border
+            bottom:
+                (disableBottom ?? false) ? BorderSide.none : BorderSide(width: 1.0, color: Theme.of(context).dividerColor), // Bottom border
+          ),
+        ),
+        child: child);
   }
 
-  bool mapsAreEqual(Map<String, dynamic> map1, Map<String, dynamic> map2) {
-    if (map1['partCode'] != map2['partCode']) {
+  bool mapsAreEqual(OrderItem map1, OrderItem map2) {
+    if (map1.partCode != map2.partCode) {
       return false;
     }
 
@@ -194,39 +208,50 @@ class _PickOrderDetailScreenState extends State<PickOrderDetailScreen> {
     return DataTable(
       columns: [
         DataColumn(label: Text('')),
-        DataColumn(label: Text('Internal Part Code/SKU')),
-        DataColumn(label: Text('Product Name (English)')),
-        DataColumn(label: Text('Alternate Name')),
-        DataColumn(label: Text('Units in Order')),
-        DataColumn(label: Text('Inventory Location')),
+        DataColumn(label: Text('Internal \nPart Code/SKU')),
+        DataColumn(label: Text('Product Name \n(English)')),
+        DataColumn(label: Text('Alternate \nName')),
+        DataColumn(label: Text('Units \nin Order')),
+        DataColumn(label: Text('Inventory \nLocation')),
       ],
-      rows: data.map((item) {
-        return DataRow(
-
-            selected: mapsAreEqual(item, selectedRow),
-            onLongPress: () {
-              _showDialog(context);
-              setState(() {
-                selectedRow = item;
-              });
-            },
-            cells: [
-              DataCell(ElevatedButton(
-
-                  onPressed: () {
-
-                    setState(() {
-                      selectedRow = {};
-                    });
-                  },
-                  child: Text('Reset'))),
-              DataCell(Text(item['partCode'] ?? '')),
-              DataCell(Text(item['productName'] ?? '')),
-              DataCell(Text(item['alternateName'] ?? '')),
-              DataCell(Text(item['unitsInOrder'] ?? '')),
-              DataCell(Text(item['inventoryLocation'] ?? '')),
-            ]);
-      }).toList(),
+      rows: (ordersss[0].orderItems?.mapIndexed((index, item) {
+                return DataRow(
+                    color: MaterialStateProperty.all(item.quantity == 0 ? Colors.grey.shade300 : null),
+                    selected: mapsAreEqual(item, selectedRow),
+                    onLongPress: () async {
+                      if (item.quantity != 0) {
+                        _showDialog(context).then((value) {
+                          if (value['code'] != item.barcode.toString()) {
+                            setState(() {
+                              item.quantity = (item.quantity ?? 0) - int.parse(value['quantity']!);
+                            });
+                          }
+                        });
+                        setState(() {
+                          selectedRow = item;
+                        });
+                      }
+                    },
+                    cells: [
+                      DataCell(ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              reset(index);
+                            });
+                          },
+                          child: Text('Reset'))),
+                      DataCell(Text(item.partCode.toString() ?? '')),
+                      DataCell(Text(item.productNameEn ?? '')),
+                      DataCell(Text(item.productNameAlt ?? '')),
+                      DataCell(Text(
+                        item.quantity.toString() ?? '',
+                        style: TextStyle(color: item.quantity! > 0 ? Colors.red : Colors.green),
+                      )),
+                      DataCell(Text(item.quantity.toString() ?? '')),
+                    ]);
+              }) ??
+              [])
+          .toList(),
     );
   }
 
@@ -235,10 +260,12 @@ class _PickOrderDetailScreenState extends State<PickOrderDetailScreen> {
     required String trailing,
     Function()? onTap,
   }) {
-    return ListTile(
-      title: Text(title,style: TextStyle(fontWeight: FontWeight.bold),),
-      trailing: Text(trailing),
-      onTap: onTap,
+    return Card(
+      child: ListTile(
+        title: Text(title),
+        trailing: Text(trailing),
+        onTap: onTap,
+      ),
     );
   }
 
@@ -272,8 +299,8 @@ class _PickOrderDetailScreenState extends State<PickOrderDetailScreen> {
     );
   }
 
-  void _showDialog(BuildContext context) {
-    showDialog(
+  Future<Map<String, String?>> _showDialog(BuildContext context) async {
+    return await showDialog(
       context: context,
       builder: (BuildContext context) {
         return QuantityDialog();
@@ -311,9 +338,6 @@ class _PickOrderDetailScreenState extends State<PickOrderDetailScreen> {
   }
 }
 
-
-
-
 class QuantityDialog extends StatefulWidget {
   @override
   _QuantityDialogState createState() => _QuantityDialogState();
@@ -322,37 +346,78 @@ class QuantityDialog extends StatefulWidget {
 class _QuantityDialogState extends State<QuantityDialog> {
   String? qrScan;
 
+  List<String> options = ['1'];
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Quantity'),
       content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          TextField(
-            decoration: InputDecoration(labelText: 'Enter Quantity'),
-          ),
+          buildDropdownWidget(options),
           SizedBox(height: 20),
           qrScan == null
-              ? Center(
-            child: ElevatedButton(
-              onPressed: () {
-                // Perform the scan action here
-                Navigator.push(context, MaterialPageRoute(builder: (context) => QRViewExample())).then((value) {
-                  if (value != null) {
-                    setState(() {
-                      qrScan = value;
-                      print('object');
-                    });
-                  }
-                }); // Close the dialog
-              },
-              child: Text('Scan Code'),
-            ),
-          )
+              ? ElevatedButton(
+                  onPressed: () {
+                    // Perform the scan action here
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => QRViewExample())).then((value) {
+                      if (value != null) {
+                        setState(() {
+                          qrScan = value;
+                          print('object');
+                        });
+                      }
+                    }); // Close the dialog
+                  },
+                  child: Text('Scan Code'),
+                )
               : Text('Scanned Code : $qrScan'),
+          qrScan != null
+              ? ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context, {'quantity': dropdownValue, 'code': qrScan});
+                  },
+                  child: Text('Confirm'))
+              : SizedBox.shrink()
         ],
       ),
     );
   }
+
+  String dropdownValue = '1';
+
+  Widget buildDropdownWidget(List<String> options) {
+    // Initially selected value
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: DropdownButton<String>(
+        value: dropdownValue,
+        icon: Icon(Icons.arrow_drop_down),
+        iconSize: 24,
+        elevation: 16,
+        style: TextStyle(color: Colors.black, fontSize: 16),
+        underline: Container(
+          height: 2,
+          color: Colors.transparent,
+        ),
+        onChanged: (String? newValue) {
+          dropdownValue = newValue!;
+        },
+        items: options.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+      ),
+    );
+  }
 }
+
