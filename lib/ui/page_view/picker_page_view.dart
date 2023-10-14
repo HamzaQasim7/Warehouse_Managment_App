@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:provider/provider.dart';
+import 'package:second_opinion_app/data/sharedpref/constants/preferences.dart';
+import 'package:second_opinion_app/utils/routes/routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../stores/theme/theme_store.dart';
 import '../picker/picker_home.dart';
 import '../picker/picker_order.dart';
 import '../picker/picker_pick_order.dart';
@@ -16,7 +21,7 @@ class PickerPageViewScreen extends StatefulWidget {
 class _PickerPageViewScreenState extends State<PickerPageViewScreen> {
   int currentPageIndex = 0;
 
-  // late ThemeStore _themeStore;
+  late ThemeStore _themeStore;
 
 
   @override
@@ -24,7 +29,7 @@ class _PickerPageViewScreenState extends State<PickerPageViewScreen> {
     super.didChangeDependencies();
 
     // initializing stores
-    // _themeStore = Provider.of<ThemeStore>(context);
+    _themeStore = Provider.of<ThemeStore>(context);
 
 
   }
@@ -35,7 +40,7 @@ class _PickerPageViewScreenState extends State<PickerPageViewScreen> {
       appBar: _buildAppBar(),
       drawer: _buildDrawer(),
       resizeToAvoidBottomInset: false,
-      bottomNavigationBar: _buildBottomNavBar(),
+      // bottomNavigationBar: _buildBottomNavBar(),
       body: _buildCurrentIndexWidget(),
     );
   }
@@ -67,7 +72,7 @@ class _PickerPageViewScreenState extends State<PickerPageViewScreen> {
   List<Widget> _buildActions(BuildContext context) {
     return <Widget>[
       _buildThemeButton(),
-      // _buildLogoutButton(),
+      _buildLogoutButton(),
     ];
   }
 
@@ -77,37 +82,36 @@ class _PickerPageViewScreenState extends State<PickerPageViewScreen> {
         return IconButton(
           onPressed: () {
 
-            // _themeStore.changeBrightnessToDark(!_themeStore.darkMode);
+            _themeStore.changeBrightnessToDark(!_themeStore.darkMode);
           },
-          icon: const Icon(
-            Icons.brightness_5,
-            // _themeStore.darkMode ? Icons.brightness_5 : Icons.brightness_3,
+          icon:  Icon(
+            _themeStore.darkMode ? Icons.brightness_5 : Icons.brightness_3,
           ),
         );
       },
     );
   }
 
-  // Widget _buildLogoutButton() {
-  //   return IconButton(
-  //     onPressed: () {
-  //       SharedPreferences.getInstance().then((preference) {
-  //         preference.setBool(Preferences.is_logged_in, false);
-  //         Navigator.of(context).pushReplacementNamed(Routes.login);
-  //       });
-  //     },
-  //     icon: Icon(
-  //       Icons.power_settings_new,
-  //     ),
-  //   );
-  // }
+  Widget _buildLogoutButton() {
+    return IconButton(
+      onPressed: () {
+        SharedPreferences.getInstance().then((preference) {
+          preference.setBool(Preferences.is_logged_in, false);
+          Navigator.of(context).pushReplacementNamed(Routes.login);
+        });
+      },
+      icon: Icon(
+        Icons.power_settings_new,
+      ),
+    );
+  }
 
 
   Widget _buildCurrentIndexWidget() {
     return <Widget>[
       const PickerHomeScreen(),
       const PickerOrderScreen(),
-      const PickerPickOrderScreen()
+       PickerPickOrderScreen()
       // TaskScreen(),
       // PutAwayOrderScreen(),
 
@@ -170,7 +174,46 @@ class _PickerPageViewScreenState extends State<PickerPageViewScreen> {
             accountEmail: Text('account@gmail.com'),
             currentAccountPicture: FlutterLogo(),
           ),
-          ListTile(title: const Text('Pick a New Order'),onTap: (){},)
+          Card(
+            elevation: 0,
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            child: ListTile(
+              title: Text('Home'),
+              onTap: () {
+                setState(() {
+                  currentPageIndex = 0;
+                  Navigator.pop(context);
+                });
+              },
+            ),
+          ),
+          Card(
+            elevation: 0,
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            child: ListTile(
+              title: Text('My Picking Tasks'),
+              onTap: () {
+                setState(() {
+                  currentPageIndex = 1;
+                  Navigator.pop(context);
+                });
+              },
+            ),
+          ),
+          Card(
+            elevation: 0,
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            child: ListTile(
+              title: Text('Pick Order'),
+              onTap: () {
+                setState(() {
+                  currentPageIndex = 2;
+                  Navigator.pop(context);
+                });
+              },
+            ),
+          )
+
         ],
       ),
     );

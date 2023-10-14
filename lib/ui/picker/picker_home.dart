@@ -67,7 +67,7 @@ class _PickerHomeScreenState extends State<PickerHomeScreen> {
     return ListTile(
       dense: true,
       title: Text(
-        'Supplier Name: $supplierName',
+        '$supplierName',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         softWrap: false,
