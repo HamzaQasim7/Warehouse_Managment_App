@@ -138,11 +138,11 @@ class _ReceiverOrderDetailScreenState extends State<ReceiverOrderDetailScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        Expanded(child: Text(
                           'Data Table',
                           style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 24),
-                        ),
-                        Text('Horizontally Scrollable')
+                        ),),
+                        Expanded(child: Text('Horizontally Scrollable'))
                       ],
                     ),
                   ),

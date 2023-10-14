@@ -2,24 +2,30 @@ import 'dart:math';
 import 'package:faker/faker.dart';
 import 'package:another_flushbar/flushbar_helper.dart';
 import 'package:intl/intl.dart';
-import 'package:second_opinion_app/ui/picker/Picker_unassigned_screen.dart';
-import 'package:second_opinion_app/ui/task/put_away_order_detail.dart';
-import 'package:second_opinion_app/ui/task/unassiged_task.dart';
+import 'package:second_opinion_app/data/sharedpref/constants/preferences.dart';
+import 'package:second_opinion_app/ui/task/task_detail.dart';
+import 'package:second_opinion_app/utils/routes/routes.dart';
+import 'package:second_opinion_app/stores/language/language_store.dart';
 import 'package:second_opinion_app/stores/post/post_store.dart';
+import 'package:second_opinion_app/stores/theme/theme_store.dart';
 import 'package:second_opinion_app/utils/locale/app_localization.dart';
 import 'package:second_opinion_app/widgets/progress_indicator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:material_dialog/material_dialog.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class PickerPickOrderScreen extends StatefulWidget {
+class UnassignedOrderScreen extends StatefulWidget {
   @override
-  _PickerPickOrderScreenState createState() => _PickerPickOrderScreenState();
+  _UnassignedOrderScreenState createState() => _UnassignedOrderScreenState();
 }
 
-class _PickerPickOrderScreenState extends State<PickerPickOrderScreen> {
+class _UnassignedOrderScreenState extends State<UnassignedOrderScreen> with TickerProviderStateMixin {
   //stores:---------------------------------------------------------------------
   late PostStore _postStore;
+  late ThemeStore _themeStore;
+  late LanguageStore _languageStore;
 
   Faker faker = Faker();
 
@@ -48,6 +54,8 @@ class _PickerPickOrderScreenState extends State<PickerPickOrderScreen> {
     super.didChangeDependencies();
 
     // initializing stores
+    _languageStore = Provider.of<LanguageStore>(context);
+    _themeStore = Provider.of<ThemeStore>(context);
     _postStore = Provider.of<PostStore>(context);
 
     // check to see if already called api
@@ -59,29 +67,27 @@ class _PickerPickOrderScreenState extends State<PickerPickOrderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: selectedIndex>=0?FloatingActionButton(
-        onPressed: () {
-
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>PickOrderDetailScreen()));
-
-        },
-        child: Icon(Icons.play_arrow),
-        shape: CircleBorder(),
-      ):null,
-
+      appBar: _buildAppBar(),
       body: _buildBody(),
     );
   }
 
+  // app bar methods:-----------------------------------------------------------
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      title: Text('Unassigned'),
 
+    );
+  }
 
 
   // body methods:--------------------------------------------------------------
   Widget _buildBody() {
     return Stack(
       children: <Widget>[
-        _handleErrorMessage(),
+
         _buildMainContent(),
+        _buildAnimatedOverlayButton()
       ],
     );
   }
@@ -94,9 +100,60 @@ class _PickerPickOrderScreenState extends State<PickerPickOrderScreen> {
     );
   }
 
+  Widget _buildAnimatedOverlayButton(){
+
+    return  AnimatedSwitcher(
+
+      switchInCurve: Curves.easeInOutCirc,
+      switchOutCurve: Curves.easeInOutCirc,
+      duration: Duration(milliseconds: 300),
+      child: selectedIndex >= 0
+          ? Align(
+        key: uniqueKey,
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SizedBox(
+            height: 60,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(
+
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedIndex = -1;
+                      });
+
+                    },
+                    child: Text('Cancel'),
+                  ),
+                ),
+                SizedBox(width: 16.0),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Add functionality for the second button
+                    },
+                    child: Text('Claim'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      )
+          : SizedBox.shrink(),
+    );
+
+
+  }
+
   Widget _buildListView() {
     return _postStore.postList != null
         ? ListView.separated(
+      padding: EdgeInsets.only(bottom: 80),
       itemCount: 10,
       separatorBuilder: (context, position) {
         return Divider();
@@ -114,7 +171,7 @@ class _PickerPickOrderScreenState extends State<PickerPickOrderScreen> {
 
   Widget _buildListItem(int position) {
     return ListTile(
-      tileColor: selectedIndex == position ? Color.lerp(Theme.of(context).scaffoldBackgroundColor, Colors.greenAccent, 0.5) : null,
+
       onTap: () {
         if (selectedIndex != position) {
           setState(() {
@@ -126,6 +183,7 @@ class _PickerPickOrderScreenState extends State<PickerPickOrderScreen> {
           });
         }
       },
+      tileColor: selectedIndex == position ? Color.lerp(Theme.of(context).scaffoldBackgroundColor, Colors.greenAccent, 0.5) : null,
       dense: true,
       title: Text(
         '${list[position]['name']}',
@@ -146,33 +204,6 @@ class _PickerPickOrderScreenState extends State<PickerPickOrderScreen> {
         checkColor: Colors.transparent,
       ),
     );
-  }
-
-  Widget _handleErrorMessage() {
-    return Observer(
-      builder: (context) {
-        if (_postStore.errorStore.errorMessage.isNotEmpty) {
-          return _showErrorMessage(_postStore.errorStore.errorMessage);
-        }
-
-        return SizedBox.shrink();
-      },
-    );
-  }
-
-  // General Methods:-----------------------------------------------------------
-  _showErrorMessage(String message) {
-    Future.delayed(Duration(milliseconds: 0), () {
-      if (message.isNotEmpty) {
-        FlushbarHelper.createError(
-          message: message,
-          title: AppLocalizations.of(context).translate('home_tv_error'),
-          duration: Duration(seconds: 3),
-        )..show(context);
-      }
-    });
-
-    return SizedBox.shrink();
   }
 
 

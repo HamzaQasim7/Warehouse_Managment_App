@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
 import 'package:second_opinion_app/ui/picker/picker_detail_screen.dart';
+import 'package:second_opinion_app/ui/picker/unassigned_order.dart';
 
 class PickerOrderScreen extends StatefulWidget {
   const PickerOrderScreen({super.key});
@@ -26,7 +27,9 @@ class _PickerOrderScreenState extends State<PickerOrderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _buildBody(),
-      floatingActionButton: FloatingActionButton(onPressed: (){},child: Icon(Icons.add),),
+      floatingActionButton: FloatingActionButton(onPressed: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>UnassignedOrderScreen()));
+      },child: Icon(Icons.add),),
     );
   }
 
@@ -75,7 +78,7 @@ class _PickerOrderScreenState extends State<PickerOrderScreen> {
       child: ListTile(
         dense: true,
         title: Text(
-          'Customer Name: $customerName',
+          '$customerName',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           softWrap: false,
