@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
-import 'package:second_opinion_app/ui/home/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../data/sharedpref/constants/preferences.dart';
 import '../../stores/theme/theme_store.dart';
 import '../../utils/routes/routes.dart';
@@ -11,8 +9,6 @@ import '../driver/driver_complete_delivery.dart';
 import '../driver/load_delivery.dart';
 import '../driver/my_deliveries.dart';
 import '../home/driver_home.dart';
-import '../task/put_away_order.dart';
-import '../task/task.dart';
 
 class DriverPageViewScreen extends StatefulWidget {
   const DriverPageViewScreen({super.key});
@@ -99,12 +95,7 @@ class _DriverPageViewScreenState extends State<DriverPageViewScreen> {
   }
 
   Widget _buildCurrentIndexWidget() {
-    return <Widget>[
-      DriverHomeScreen(),
-      DeliveryScreen(),
-      LoadDeliveryScreen(),
-      CompleteDeliveryScreen()
-    ][currentPageIndex];
+    return <Widget>[DriverHomeScreen(), DeliveryScreen(), LoadDeliveryScreen(), CompleteDeliveryScreen()][currentPageIndex];
   }
 
   List<NavigationDestination> _buildDestinationList() {
@@ -130,7 +121,8 @@ class _DriverPageViewScreenState extends State<DriverPageViewScreen> {
           //color: currentPageIndex == 2 ? Theme.of(context).primaryColor : Colors.black38,
         ),
         label: 'Pick Order',
-      ),NavigationDestination(
+      ),
+      NavigationDestination(
         icon: Icon(
           Icons.delivery_dining,
           //color: currentPageIndex == 2 ? Theme.of(context).primaryColor : Colors.black38,
@@ -143,7 +135,7 @@ class _DriverPageViewScreenState extends State<DriverPageViewScreen> {
   NavigationBar _buildBottomNavBar() {
     // This function builds the bottom navigation bar, which allows users to switch between the different pages of the app.
     return NavigationBar(
-      height: 80,
+      height: 100,
       labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
       //backgroundColor: Colors.white,
       elevation: 1,
@@ -167,15 +159,46 @@ class _DriverPageViewScreenState extends State<DriverPageViewScreen> {
             accountEmail: Text('account@gmail.com'),
             currentAccountPicture: FlutterLogo(),
           ),
-          Card(
-            elevation: 0,
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
-            child: ListTile(
-              leading: Icon(Icons.add),
-              title: Text('Pick a New Order'),
-              onTap: () {},
-            ),
-          )
+          ListTile(
+            leading: Icon(Icons.house_rounded),
+            title: Text('Home'),
+            onTap: () {
+              setState(() {
+                currentPageIndex = 0;
+                Navigator.pop(context); // Change this line to update the currentPageIndex
+              });
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.task),
+            title: Text('My Deliveries'),
+            onTap: () {
+              setState(() {
+                currentPageIndex = 1;
+                Navigator.pop(context); // Change this line to update the currentPageIndex
+              });
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.category),
+            title: Text('Pick Order'),
+            onTap: () {
+              setState(() {
+                currentPageIndex = 2;
+                Navigator.pop(context); // Change this line to update the currentPageIndex
+              });
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.delivery_dining),
+            title: Text('Complete Delivery'),
+            onTap: () {
+              setState(() {
+                currentPageIndex = 3;
+                Navigator.pop(context); // Change this line to update the currentPageIndex
+              });
+            },
+          ),
         ],
       ),
     );
