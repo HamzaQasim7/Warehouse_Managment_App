@@ -36,7 +36,7 @@ class _DriverPageViewScreenState extends State<DriverPageViewScreen> {
       appBar: _buildAppBar(),
       drawer: _buildDrawer(),
       resizeToAvoidBottomInset: false,
-      bottomNavigationBar: _buildBottomNavBar(),
+      //bottomNavigationBar: _buildBottomNavBar(),
       body: _buildCurrentIndexWidget(),
     );
   }
@@ -60,25 +60,11 @@ class _DriverPageViewScreenState extends State<DriverPageViewScreen> {
 
   List<Widget> _buildActions(BuildContext context) {
     return <Widget>[
-      _buildThemeButton(),
+
       _buildLogoutButton(),
     ];
   }
 
-  Widget _buildThemeButton() {
-    return Observer(
-      builder: (context) {
-        return IconButton(
-          onPressed: () {
-            _themeStore.changeBrightnessToDark(!_themeStore.darkMode);
-          },
-          icon: Icon(
-            _themeStore.darkMode ? Icons.brightness_5 : Icons.brightness_3,
-          ),
-        );
-      },
-    );
-  }
 
   Widget _buildLogoutButton() {
     return IconButton(

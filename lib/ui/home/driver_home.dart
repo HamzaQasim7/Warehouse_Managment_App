@@ -51,7 +51,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
   }
 
   Widget _buildListView() {
-    return   ListView.builder(
+    return   ListView.separated(
+      separatorBuilder: (context,position)=>Divider(),
       padding: EdgeInsets.all(8),
       itemCount: 10,
       itemBuilder: (context, position) {
@@ -65,39 +66,32 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
     String supplierName = faker.person.name();
     DateTime arrivalTime = DateTime.now().add(Duration(minutes: Random().nextInt(3600)));
     String location = '${faker.address.streetAddress()}, ${faker.address.city()}';
-    return Card(
-      elevation: 0,
-      color: Theme.of(context).primaryColor.withOpacity(0.2),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListTile(
-          dense: true,
-          title: Text(
-            '$supplierName',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: false,
-            style: Theme.of(context).textTheme.titleMedium,
+    return ListTile(
+      dense: true,
+      title: Text(
+        '$supplierName',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      subtitle: Row(crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.location_on,size: 18,),
+          Flexible(
+            child: Text(
+              '$location',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              softWrap: true,
+            ),
           ),
-          subtitle: Row(crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.location_on,size: 18,),
-              Flexible(
-                child: Text(
-                  '$location',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: true,
-                ),
-              ),
-            ],
-          ),
-          trailing: Checkbox(
-            value: true,
-            onChanged: (bool? value) {},
-            checkColor: Colors.transparent,
-          ),
-        ),
+        ],
+      ),
+      trailing: Checkbox(
+        value: true,
+        onChanged: (bool? value) {},
+        checkColor: Colors.transparent,
       ),
     );
   }

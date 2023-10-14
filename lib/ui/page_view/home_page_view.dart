@@ -39,7 +39,7 @@ class _PageViewScreenState extends State<PageViewScreen> {
       appBar: _buildAppBar(),
       drawer: _buildDrawer(),
       resizeToAvoidBottomInset: false,
-      bottomNavigationBar: _buildBottomNavBar(),
+      //bottomNavigationBar: _buildBottomNavBar(),
       body: _buildCurrentIndexWidget(),
     );
   }
@@ -70,25 +70,12 @@ class _PageViewScreenState extends State<PageViewScreen> {
 
   List<Widget> _buildActions(BuildContext context) {
     return <Widget>[
-      _buildThemeButton(),
+
       _buildLogoutButton(),
     ];
   }
 
-  Widget _buildThemeButton() {
-    return Observer(
-      builder: (context) {
-        return IconButton(
-          onPressed: () {
-            _themeStore.changeBrightnessToDark(!_themeStore.darkMode);
-          },
-          icon: Icon(
-            _themeStore.darkMode ? Icons.brightness_5 : Icons.brightness_3,
-          ),
-        );
-      },
-    );
-  }
+
 
   Widget _buildLogoutButton() {
     return IconButton(
@@ -169,15 +156,37 @@ class _PageViewScreenState extends State<PageViewScreen> {
             accountEmail: Text('account@gmail.com'),
             currentAccountPicture: FlutterLogo(),
           ),
-          Card(
-            elevation: 0,
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
-            child: ListTile(
-              leading: Icon(Icons.add),
-              title: Text('Pick a New Order'),
-              onTap: () {},
-            ),
-          )
+          ListTile(
+            leading: Icon(Icons.house_rounded),
+            title: Text('Home'),
+            onTap: () {
+              setState(() {
+                currentPageIndex = 0;
+                Navigator.pop(context); // Change this line to update the currentPageIndex
+              });
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.task),
+            title: Text('My Orders'),
+            onTap: () {
+              setState(() {
+                currentPageIndex = 1;
+                Navigator.pop(context); // Change this line to update the currentPageIndex
+              });
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.category),
+            title: Text('Put Away Order'),
+            onTap: () {
+              setState(() {
+                currentPageIndex = 2;
+                Navigator.pop(context); // Change this line to update the currentPageIndex
+              });
+            },
+          ),
+
         ],
       ),
     );

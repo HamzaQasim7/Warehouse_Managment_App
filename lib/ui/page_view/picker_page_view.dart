@@ -71,26 +71,11 @@ class _PickerPageViewScreenState extends State<PickerPageViewScreen> {
 
   List<Widget> _buildActions(BuildContext context) {
     return <Widget>[
-      _buildThemeButton(),
+
       _buildLogoutButton(),
     ];
   }
 
-  Widget _buildThemeButton() {
-    return Observer(
-      builder: (context) {
-        return IconButton(
-          onPressed: () {
-
-            _themeStore.changeBrightnessToDark(!_themeStore.darkMode);
-          },
-          icon:  Icon(
-            _themeStore.darkMode ? Icons.brightness_5 : Icons.brightness_3,
-          ),
-        );
-      },
-    );
-  }
 
   Widget _buildLogoutButton() {
     return IconButton(

@@ -96,7 +96,10 @@ class _LoadDeliveryScreenState extends State<LoadDeliveryScreen> {
 
   Widget _buildListView() {
     return _postStore.postList != null
-        ? ListView.builder(
+        ? ListView.separated(
+      separatorBuilder: (context, position) {
+        return Divider();
+      },
       padding: EdgeInsets.fromLTRB(8, 8, 8, 50),
       itemCount: 10,
 
@@ -112,74 +115,67 @@ class _LoadDeliveryScreenState extends State<LoadDeliveryScreen> {
   }
 
   Widget _buildListItem(int position) {
-    return Card(
-      elevation: 0,
-      color: selectedIndex == position ? Color.lerp(Theme.of(context).scaffoldBackgroundColor, Colors.greenAccent, 0.5) : Theme.of(context).primaryColor.withOpacity(0.2),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListTile(
-          tileColor: selectedIndex == position ? Color.lerp(Theme.of(context).scaffoldBackgroundColor, Colors.greenAccent, 0.5) : null,
-          onTap: () {
-            if (selectedIndex != position) {
-              setState(() {
-                selectedIndex = position;
-              });
-            } else {
-              setState(() {
-                selectedIndex = -1;
-              });
-            }
-          },
-          dense: true,
-          title: Text(
-            '${list[position]['name']}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: false,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start,
-            children: [ RichText(
-              text: TextSpan(
+    return ListTile(
+      tileColor: selectedIndex == position ? Color.lerp(Theme.of(context).scaffoldBackgroundColor, Colors.greenAccent, 0.5) : null,
+      onTap: () {
+        if (selectedIndex != position) {
+          setState(() {
+            selectedIndex = position;
+          });
+        } else {
+          setState(() {
+            selectedIndex = -1;
+          });
+        }
+      },
+      dense: true,
+      title: Text(
+        '${list[position]['name']}',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start,
+        children: [ RichText(
+          text: TextSpan(
 
-                children: <TextSpan>[
-                  TextSpan(
-                      text: 'State : ',
-                      style:Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 16)
-                  ),
-                  TextSpan(
-                      text: '${faker.randomGenerator.fromCharSet('LD', 1)}',
-                      style: TextStyle(color: Colors.grey.shade700 )
-
-                  ),
-                ],
+            children: <TextSpan>[
+              TextSpan(
+                  text: 'State : ',
+                  style:Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 16)
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              softWrap: true,
-            ),
-              Row(crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.location_on,size: 18,),
-                  Flexible(
-                    child: Text(
-                      '${list[position]['location']}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
-                    ),
-                  ),
-                ],
-              ),
+              TextSpan(
+                  text: '${faker.randomGenerator.fromCharSet('LD', 1)}',
+                  style: TextStyle(color: Colors.grey.shade700 )
 
+              ),
             ],
           ),
-          trailing: Checkbox(
-            value: true,
-            onChanged: (bool? value) {},
-            checkColor: Colors.transparent,
-          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          softWrap: true,
         ),
+          Row(crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.location_on,size: 18,),
+              Flexible(
+                child: Text(
+                  '${list[position]['location']}',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                ),
+              ),
+            ],
+          ),
+
+        ],
+      ),
+      trailing: Checkbox(
+        value: true,
+        onChanged: (bool? value) {},
+        checkColor: Colors.transparent,
       ),
     );
   }

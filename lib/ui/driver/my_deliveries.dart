@@ -77,7 +77,9 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
 
   Widget _buildListView() {
     return _postStore.postList != null
-        ? ListView.builder(
+        ? ListView.separated( separatorBuilder: (context, position) {
+      return Divider();
+    },
       padding: EdgeInsets.all(8),
             itemCount: _postStore.postList!.posts!.length,
 
@@ -96,64 +98,58 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     String supplierName = faker.person.name();
     DateTime arrivalTime = DateTime.now().add(Duration(minutes: Random().nextInt(3600)));
     String location = '${faker.address.streetAddress()}, ${faker.address.city()}';
-    return Card(elevation: 0,
-      color: Theme.of(context).primaryColor.withOpacity(0.2),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListTile(
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveryDetailScreen()));
-          },
-          dense: true,
-          title: Text(
-            '$supplierName',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: false,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start,
-            children: [ RichText(
-              text: TextSpan(
+    return ListTile(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveryDetailScreen()));
+      },
+      dense: true,
+      title: Text(
+        '$supplierName',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start,
+        children: [ RichText(
+          text: TextSpan(
 
-                children: <TextSpan>[
-                  TextSpan(
-                      text: 'State : ',
-                      style:Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 16)
-                  ),
-                  TextSpan(
-                      text: '${faker.randomGenerator.fromCharSet('LD', 1)}',
-                      style: TextStyle(color: Colors.grey.shade700 )
-
-                  ),
-                ],
+            children: <TextSpan>[
+              TextSpan(
+                  text: 'State : ',
+                  style:Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 16)
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              softWrap: true,
-            ),
-              Row(crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.location_on,size: 18,),
-                  Flexible(
-                    child: Text(
-                      '$location',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
-                    ),
-                  ),
-                ],
-              ),
+              TextSpan(
+                  text: '${faker.randomGenerator.fromCharSet('LD', 1)}',
+                  style: TextStyle(color: Colors.grey.shade700 )
 
+              ),
             ],
           ),
-          trailing: Checkbox(
-            value: true,
-            onChanged: (bool? value) {},
-            checkColor: Colors.transparent,
-          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          softWrap: true,
         ),
+          Row(crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.location_on,size: 18,),
+              Flexible(
+                child: Text(
+                  '$location',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                ),
+              ),
+            ],
+          ),
+
+        ],
+      ),
+      trailing: Checkbox(
+        value: true,
+        onChanged: (bool? value) {},
+        checkColor: Colors.transparent,
       ),
     );
   }

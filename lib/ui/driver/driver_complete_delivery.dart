@@ -61,22 +61,18 @@ class _CompleteDeliveryScreenState extends State<CompleteDeliveryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: selectedIndex>=0?FloatingActionButton(
-        onPressed: () {
-
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>CompleteDeliveryDetailScreen()));
-
-        },
-        child: Icon(Icons.play_arrow),
-        shape: CircleBorder(),
-      ):null,
-
+      floatingActionButton: selectedIndex >= 0
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteDeliveryDetailScreen()));
+              },
+              child: Icon(Icons.play_arrow),
+              shape: CircleBorder(),
+            )
+          : null,
       body: _buildBody(),
     );
   }
-
-
-
 
   // body methods:--------------------------------------------------------------
   Widget _buildBody() {
@@ -98,90 +94,82 @@ class _CompleteDeliveryScreenState extends State<CompleteDeliveryScreen> {
 
   Widget _buildListView() {
     return _postStore.postList != null
-        ? ListView.builder(
-      padding: EdgeInsets.fromLTRB(8, 8, 8, 50),
-      itemCount: 10,
-
-      itemBuilder: (context, position) {
-        return _buildListItem(position);
-      },
-    )
+        ? ListView.separated(
+            separatorBuilder: (context, position) {
+              return Divider();
+            },
+            padding: EdgeInsets.fromLTRB(8, 8, 8, 50),
+            itemCount: 10,
+            itemBuilder: (context, position) {
+              return _buildListItem(position);
+            },
+          )
         : Center(
-      child: Text(
-        AppLocalizations.of(context).translate('home_tv_no_post_found'),
-      ),
-    );
+            child: Text(
+              AppLocalizations.of(context).translate('home_tv_no_post_found'),
+            ),
+          );
   }
 
   Widget _buildListItem(int position) {
-    return Card(
-      elevation: 0,
-      color: selectedIndex == position ? Color.lerp(Theme.of(context).scaffoldBackgroundColor, Colors.greenAccent, 0.5) : Theme.of(context).primaryColor.withOpacity(0.2),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListTile(
-          tileColor: selectedIndex == position ? Color.lerp(Theme.of(context).scaffoldBackgroundColor, Colors.greenAccent, 0.5) : null,
-          onTap: () {
-            if (selectedIndex != position) {
-              setState(() {
-                selectedIndex = position;
-              });
-            } else {
-              setState(() {
-                selectedIndex = -1;
-              });
-            }
-          },
-          dense: true,
-          title: Text(
-            '${list[position]['name']}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: false,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start,
-            children: [ RichText(
-              text: TextSpan(
-
-                children: <TextSpan>[
-                  TextSpan(
-                      text: 'State : ',
-                      style:Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 16)
-                  ),
-                  TextSpan(
-                      text: '${faker.randomGenerator.fromCharSet('LD', 1)}',
-                      style: TextStyle(color: Colors.grey.shade700 )
-
-                  ),
-                ],
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              softWrap: true,
+    return ListTile(
+      tileColor: selectedIndex == position ? Color.lerp(Theme.of(context).scaffoldBackgroundColor, Colors.greenAccent, 0.5) : null,
+      onTap: () {
+        if (selectedIndex != position) {
+          setState(() {
+            selectedIndex = position;
+          });
+        } else {
+          setState(() {
+            selectedIndex = -1;
+          });
+        }
+      },
+      dense: true,
+      title: Text(
+        '${list[position]['name']}',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RichText(
+            text: TextSpan(
+              children: <TextSpan>[
+                TextSpan(text: 'State : ', style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 16)),
+                TextSpan(text: '${faker.randomGenerator.fromCharSet('LD', 1)}', style: TextStyle(color: Colors.grey.shade700)),
+              ],
             ),
-              Row(crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.location_on,size: 18,),
-                  Flexible(
-                    child: Text(
-                      '${list[position]['location']}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
-                    ),
-                  ),
-                ],
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            softWrap: true,
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.location_on,
+                size: 18,
               ),
-
+              Flexible(
+                child: Text(
+                  '${list[position]['location']}',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                ),
+              ),
             ],
           ),
-          trailing: Checkbox(
-            value: true,
-            onChanged: (bool? value) {},
-            checkColor: Colors.transparent,
-          ),
-        ),
+        ],
+      ),
+      trailing: Checkbox(
+        value: true,
+        onChanged: (bool? value) {},
+        checkColor: Colors.transparent,
       ),
     );
   }
@@ -212,6 +200,4 @@ class _CompleteDeliveryScreenState extends State<CompleteDeliveryScreen> {
 
     return SizedBox.shrink();
   }
-
-
 }
