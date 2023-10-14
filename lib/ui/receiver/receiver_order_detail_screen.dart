@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:faker/faker.dart';
 import 'package:another_flushbar/flushbar_helper.dart';
+import 'package:second_opinion_app/ui/receiver/receiver_unassigned_order.dart';
 import 'package:second_opinion_app/utils/locale/app_localization.dart';
 import 'package:second_opinion_app/widgets/progress_indicator_widget.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,11 @@ class _ReceiverOrderDetailScreenState extends State<ReceiverOrderDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(onPressed: (){
+
+        Navigator.push(context,MaterialPageRoute(builder: (context)=>ReceiverUnassignedOrderScreen()));
+
+      },child: Icon(Icons.add),),
       appBar: _buildAppBar(),
       body: _buildBody(),
     );
@@ -58,30 +64,27 @@ class _ReceiverOrderDetailScreenState extends State<ReceiverOrderDetailScreen> {
     );
   }
 
-  String getRandomLocation() {
-    List<String> locations = ['Aisle', 'Bay', 'Shelf', 'Bin'];
-    Random random = Random();
-    int randomIndex = random.nextInt(locations.length);
-    return locations[randomIndex];
-  }
+
 
   Widget _buildListView() {
     List<Map<String, String>> orderContents = [
       {
         'partCode': 'ABC123',
-        'productName': 'Product A',
-        'alternateName': 'Korean Name',
-        'unitsInOrder': '100',
-        'pricePerUnit': '24',
-        'inventoryLocation': getRandomLocation(),
+        'productName': 'Juice',
+        'alternateName': '주스',
+        'unitsInOrder': '18',
+        'pricePerUnit': '27',
+        'totalPrice': '\$486',
+        // 'inventoryLocation': getRandomLocation(),
       },
       {
         'partCode': 'XYZ789',
-        'productName': 'Product B',
-        'alternateName': 'Chinese Simplified Name',
-        'unitsInOrder': '75',
-        'pricePerUnit': '68',
-        'inventoryLocation': getRandomLocation(),
+        'productName': 'Burger',
+        'alternateName': '汉堡包',
+        'unitsInOrder': '25',
+        'pricePerUnit': '28',
+        'totalPrice': '\$700',
+        // 'inventoryLocation': getRandomLocation(),
       },
       // Add more data rows as needed
     ];
@@ -115,12 +118,12 @@ class _ReceiverOrderDetailScreenState extends State<ReceiverOrderDetailScreen> {
                 Divider(),
                 _buildBorderedListTile(
                   title: 'Total Price',
-                  trailing: '50',
+                  trailing: '\$40',
                 ),
                 Divider(),
                 _buildBorderedListTile(
                   title: 'Name of the User',
-                  trailing: 'John Doe',
+                  trailing: 'John Smith',
                 ),
                 Divider(),
               ],
@@ -173,7 +176,8 @@ class _ReceiverOrderDetailScreenState extends State<ReceiverOrderDetailScreen> {
         DataCell(Text(item['alternateName'] ?? '')),
         DataCell(Text(item['unitsInOrder'] ?? '')),
         DataCell(Text(item['pricePerUnit'] ?? '')),
-        DataCell(Text(item['inventoryLocation'] ?? '')),
+        DataCell(Text(item['totalPrice'] ?? '')),
+        // DataCell(Text(item['inventoryLocation'] ?? '')),
       ]);
     }).toList();
 
@@ -184,7 +188,8 @@ class _ReceiverOrderDetailScreenState extends State<ReceiverOrderDetailScreen> {
         DataColumn(label: Text('Alternate Name')),
         DataColumn(label: Text('Units in Order')),
         DataColumn(label: Text('Price Per Unit')),
-        DataColumn(label: Text('Inventory Location')),
+        DataColumn(label: Text('Total Price ')),
+        // DataColumn(label: Text('Inventory Location')),
       ],
       rows: rows,
     );

@@ -41,7 +41,8 @@ class _ReceiverHomeScreenState extends State<ReceiverHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: ListView.separated(itemBuilder: (context, index) {
+    return Scaffold(
+        body: ListView.separated(itemBuilder: (context, index) {
       return _buildListItem(index);
     },separatorBuilder: (context,index)=>Divider(), itemCount: 20,));
   }
